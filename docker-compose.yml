@@ -1,0 +1,72 @@
+services:
+  delivery-api:
+    container_name: delivery-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      delivery-db:
+        condition: service_healthy
+    environment:
+      - DJANGO_SETTINGS_MODULE=project.settings
+    volumes:
+      - ./static:/usr/src/app/static
+      - ./media:/usr/src/app/media
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    networks:
+      - "app_networks"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - "app_networks"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+
+#  celery_worker:
+#    build: .
+#    command: celery -A project worker --loglevel=info
+#    volumes:
+#      - .:/usr/src/app
+#    env_file:
+#      - .env
+#    depends_on:
+#      - redis
+#      - delivery-db
+#    networks:
+#      - "app_networks"
+#    restart: always
+
+  delivery-db:
+    container_name: delivery-db
+    image: postgres:16-alpine3.19
+    ports:
+      - "127.0.0.1:5432:5432"
+    user: postgres
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - delivery-db:/var/lib/postgresql/data
+    networks:
+      - "app_networks"
+
+volumes:
+  delivery-db:
+
+networks:
+  app_networks:
+    driver: bridge
