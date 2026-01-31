@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from delivery.models import Delivery
 from delivery.serializers.delivery import DeliverySerializer
 from delivery_auth.models import AuthUser
+from notification.services import NotificationService
 from utils.user_role_based_permissions import SuperAdminPermission
 
 
@@ -17,8 +18,8 @@ class AssignDeliveries(APIView):
     Only super admins can assign deliveries to admin users.
     """
     serializer_class = DeliverySerializer
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [SuperAdminPermission]
+    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [SuperAdminPermission]
 
     @swagger_auto_schema(
         operation_id="assign_delivery",
@@ -101,9 +102,19 @@ class AssignDeliveries(APIView):
         if auth_user.role != 'admin':
             return Response({"message": "User is not an admin"}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = self.serializer_class(delivery, data=request.data, partial=True, context={'request': request})
+        update_data = {
+            'assigned_to': assigned_to_id,
+            'status': 'ASSIGNED'
+        }
+
+        serializer = self.serializer_class(delivery, data=update_data, partial=True, context={'request': request})
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            NotificationService.create_delivery_notification(
+                delivery=delivery,
+                notification_type='delivery_assigned',
+                title='Delivery Assigned',
+                message=f"Your delivery for {delivery.product_name} has been assigned to {delivery.assigned_to.first_name} {delivery.assigned_to.last_name}")
             return Response({"message": "Delivery assigned to admin successfully", "data": serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

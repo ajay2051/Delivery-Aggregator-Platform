@@ -44,8 +44,14 @@ class Home(APIView):
     def get(self, request):
         return Response({"message": "Welcome to Delivery Aggregator Platform...🙏🙏🙏"})
 
+
+class UserVerified(APIView):
+    def get(self, request):
+        return Response({"message": "User Verified Successfully...🙏🙏🙏"})
+
 urlpatterns = [
     path("", Home.as_view(), name="home"),
+    path("verified", UserVerified.as_view(), name="user_verified"),
 
     path(
         "api/v1/docs/",
@@ -55,6 +61,7 @@ urlpatterns = [
 
     path('api/v1/auth/', include('delivery_auth.urls'), name='auth'),
     path('api/v1/delivery/', include('delivery.urls'), name='delivery'),
+    path('api/v1/notification/', include('notification.urls'), name='notification'),
 
     path("__debug__/", include("debug_toolbar.urls")),
 

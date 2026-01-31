@@ -25,6 +25,6 @@ def verify_user_account(request, user_id, token):
                 raise ValidationError("User is already verified...")
             user.is_verified = True
             user.save()
-        return redirect(f"https://www.f1apply.com/verified")
+        return redirect(f"http://127.0.0.1:8000/verified")
     except ValidationError:
         return Response("Something went wrong...👿👿", status=status.HTTP_400_BAD_REQUEST)

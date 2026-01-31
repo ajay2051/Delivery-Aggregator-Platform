@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'delivery_auth.apps.DeliveryAuthConfig',
     'delivery.apps.DeliveryConfig',
+    'notification.apps.NotificationConfig',
 
     'debug_toolbar',
 
