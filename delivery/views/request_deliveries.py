@@ -1,7 +1,6 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -115,7 +114,6 @@ class RequestDeliveries(APIView):
         existing_delivery = Delivery.objects.filter(idempotency_key=idempotency_key).first()
 
         if existing_delivery:
-            # raise ValidationError('Duplicate request detected')
             return Response({"message": "Duplicate request detected...👿👿", }, status=status.HTTP_409_CONFLICT)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
