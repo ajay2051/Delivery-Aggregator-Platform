@@ -1,5 +1,7 @@
 from enum import Enum
 
+from delivery_auth.models import BaseModel
+
 
 class UserRole(Enum):
     partner = "partner"
@@ -9,3 +11,17 @@ class UserRole(Enum):
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
+
+
+class DeliveryStatus(Enum):
+    CREATED = "CREATED"
+    ASSIGNED = "ASSIGNED"
+    IN_TRANSIT = "IN_TRANSIT"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
