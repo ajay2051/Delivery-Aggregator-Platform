@@ -53,6 +53,9 @@ docker compose up --build
 # To Stop Containers
 docker compose down --rmi all
 
+# Run tests
+python manage.py test
+
 
 # Idempotency Key
 
@@ -66,3 +69,27 @@ Before creating a new record, the API checks whether a record with the same idem
 If it exists, the existing record is returned instead of creating a duplicate
 If it does not exist, a new record is created and stored with the generated key
 This approach ensures safe retries, duplicate prevention, and consistent behavior across distributed systems.
+
+# Delivery Assignment, Status Updates & Notifications
+Assign Delivery
+
+Super Admins can assign a delivery to an Admin user.
+When a delivery is assigned:
+The assigned_to field is updated
+Delivery status transitions from CREATED → ASSIGNED
+A notification is sent to the assigned admin informing them about the delivery
+
+# Update Delivery Status
+Admin users can update delivery status while strictly following the delivery state machine:
+CREATED → ASSIGNED
+ASSIGNED → IN_TRANSIT
+IN_TRANSIT → COMPLETED / FAILED
+COMPLETED and FAILED are terminal states and cannot be updated further
+Invalid transitions are automatically rejected to maintain lifecycle integrity.
+
+# Notifications
+
+The system sends asynchronous notifications for key delivery events:
+When a delivery is assigned to an admin
+When delivery status changes (e.g., IN_TRANSIT, COMPLETED, FAILED)
+Notifications are handled via background tasks to ensure non-blocking API performance and reliable delivery updates to users.
