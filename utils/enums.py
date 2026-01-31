@@ -1,7 +1,5 @@
 from enum import Enum
 
-from delivery_auth.models import BaseModel
-
 
 class UserRole(Enum):
     partner = "partner"
