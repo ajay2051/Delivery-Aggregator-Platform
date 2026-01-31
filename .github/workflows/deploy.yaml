@@ -69,3 +69,4 @@ jobs:
         DEBUG: 'False'
       run: |
         python manage.py test delivery.tests
+        python manage.py test delivery_auth.tests
