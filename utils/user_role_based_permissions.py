@@ -7,7 +7,7 @@ class SuperAdminPermission(BasePermission):
         if not request.user or not request.user.is_authenticated:
             raise PermissionDenied("User not authenticated")
 
-        allowed_roles = ['admin', 'partner']
+        allowed_roles = ['super_admin']
         if request.user.role in allowed_roles:
             return True
 
