@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from delivery_auth.models import AuthUser
 from delivery_auth.serializers.create_users import AuthUserSerializers
 from utils.pagination import CustomPagination
+from utils.user_role_based_permissions import AdminUserPermission
 
 
 class UsersListAPIView(APIView):
@@ -26,7 +27,7 @@ class UsersListAPIView(APIView):
     """
     # queryset = TestPaper.objects.filter(is_deleted=False).order_by('-id')
     serializer_class = AuthUserSerializers
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AdminUserPermission]
     pagination_class = CustomPagination
 
     @swagger_auto_schema(

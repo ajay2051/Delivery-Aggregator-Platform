@@ -54,6 +54,7 @@ urlpatterns = [
     ),
 
     path('api/v1/auth/', include('delivery_auth.urls'), name='auth'),
+    path('api/v1/delivery/', include('delivery.urls'), name='delivery'),
 
     path("__debug__/", include("debug_toolbar.urls")),
 
