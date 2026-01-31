@@ -60,5 +60,8 @@ jobs:
         python manage.py migrate
 
     - name: Run Tests
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DEBUG: 'False'
       run: |
         python manage.py test delivery.tests
