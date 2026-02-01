@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from delivery_auth.models import AuthUser
 
@@ -20,12 +21,16 @@ class CreateUserViewTestCase(TestCase):
             'password': 'Password123!',
             'user_number': '+9779852314785',
             'country': 'Nepal',
-            'date_of_birth': (datetime.now().date() - timedelta(days=365*20)).strftime('%Y-%m-%d'),
+            'date_of_birth': (datetime.now().date() - timedelta(days=365 * 20)).strftime('%Y-%m-%d'),
             'role': 'partner'
         }
 
-    def test_create_user_success(self):
+    @patch('delivery_auth.celery_tasks.send_mail_func.delay')  # Mock the Celery task
+    def test_create_user_success(self, mock_send_mail):
         """Test successful user creation"""
+        # Mock the task to do nothing
+        mock_send_mail.return_value = None
+
         response = self.client.post(self.url, self.valid_data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -38,7 +43,11 @@ class CreateUserViewTestCase(TestCase):
         self.assertEqual(user.first_name, 'John')
         self.assertEqual(user.last_name, 'Doe')
 
-    def test_create_user_missing_required_field(self):
+        # Verify email task was called
+        mock_send_mail.assert_called_once()
+
+    @patch('delivery_auth.celery_tasks.send_mail_func.delay')
+    def test_create_user_missing_required_field(self, mock_send_mail):
         """Test user creation without required field"""
         invalid_data = self.valid_data.copy()
         del invalid_data['email']
@@ -47,7 +56,8 @@ class CreateUserViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_user_duplicate_email(self):
+    @patch('delivery_auth.celery_tasks.send_mail_func.delay')
+    def test_create_user_duplicate_email(self, mock_send_mail):
         """Test user creation with duplicate email"""
         # Create first user
         self.client.post(self.url, self.valid_data, format='json')
@@ -57,7 +67,8 @@ class CreateUserViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_user_invalid_email(self):
+    @patch('delivery_auth.celery_tasks.send_mail_func.delay')
+    def test_create_user_invalid_email(self, mock_send_mail):
         """Test user creation with invalid email"""
         invalid_data = self.valid_data.copy()
         invalid_data['email'] = 'invalid-email'
@@ -66,7 +77,8 @@ class CreateUserViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_user_weak_password(self):
+    @patch('delivery_auth.celery_tasks.send_mail_func.delay')
+    def test_create_user_weak_password(self, mock_send_mail):
         """Test user creation with weak password"""
         invalid_data = self.valid_data.copy()
         invalid_data['password'] = 'weak'
