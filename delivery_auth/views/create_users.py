@@ -9,8 +9,7 @@ from rest_framework.response import Response
 
 from delivery_auth.models import AuthUser
 from delivery_auth.serializers.create_users import AuthUserSerializers
-from utils.tasks import send_mail_func
-from django.core.mail import send_mail
+from delivery_auth.celery_tasks import send_mail_func
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -231,10 +230,10 @@ class CreateUserView(generics.CreateAPIView):
                 serializers.ValidationError: If the provided data is invalid.
         """
         serializer = self.get_serializer(data=request.data)
-        email = request.data.get("email")
-        user = AuthUser.objects.filter(email=email).first()
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+        email = request.data.get("email")
+        user = AuthUser.objects.filter(email=email).first()
         try:
             if user:
                 token = default_token_generator.make_token(user)

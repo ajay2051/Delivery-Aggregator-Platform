@@ -12,7 +12,7 @@ app = Celery('project')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django apps.
-app.autodiscover_tasks()
+app.autodiscover_tasks(['delivery_auth'])
 
 
 # You don't need both autodiscover_tasks() and explicit app list

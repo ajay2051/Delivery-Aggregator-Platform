@@ -43,6 +43,7 @@ python manage.py migrate
 http://127.0.0.1:8000/api/v1/docs/
 
 # To start Celery tasks
+celery -A project worker -l info -n worker1@%h -Q celery (Starts Celery with unique name)
 celery -A project worker  --loglevel=INFO
 celery -A project worker flower
 

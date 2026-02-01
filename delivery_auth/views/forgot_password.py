@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from delivery_auth.models import AuthUser
-from utils.tasks import send_mail_func
+from delivery_auth.celery_tasks import send_mail_func
 from delivery_auth.serializers.forgot_password import ForgotPasswordSerializer
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL')
